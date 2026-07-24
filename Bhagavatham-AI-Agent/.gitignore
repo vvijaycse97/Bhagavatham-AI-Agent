@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+
+vector_db/
+logs/
+
+.streamlit/secrets.toml
+
+.env
+
+.vscode/
+
+*.db
+
+*.sqlite3
