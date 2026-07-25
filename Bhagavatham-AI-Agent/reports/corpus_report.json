@@ -1,0 +1,9 @@
+{
+    "generated_on": "2026-07-25T23:50:21.727958",
+    "documents_processed": 2,
+    "original_characters": 4871205,
+    "cleaned_characters": 4477455,
+    "removed_characters": 393750,
+    "removed_noise_paragraphs": 2240,
+    "processing_time_seconds": 3.29
+}
