@@ -92,9 +92,13 @@ class TestModels(unittest.TestCase):
         )
 
         chunk = Chunk(
-            chunk_id="chunk_001",
-            text="Krishna is the Supreme Personality.",
-            metadata=metadata,
+          chunk_id="chunk_001",
+          source_document="part1.txt",
+          chunk_number=1,
+          text="Krishna is the Supreme Personality.",
+          character_count=36,
+          word_count=5,
+          metadata=metadata,
         )
 
         self.assertEqual(

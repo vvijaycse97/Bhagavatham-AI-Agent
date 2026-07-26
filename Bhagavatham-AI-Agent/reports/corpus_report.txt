@@ -4,20 +4,20 @@ Bhagavatham AI Corpus Report
 
 Generated On
 
-2026-07-25 23:50:21
+2026-07-26 17:22:49
 
 ------------------------------------------------------------
 
 Documents Processed      : 2
 
-Original Characters      : 4,871,205
+Original Characters      : 1,000
 
-Cleaned Characters       : 4,477,455
+Cleaned Characters       : 850
 
-Characters Removed       : 393,750
+Characters Removed       : 150
 
-Noise Paragraphs Removed : 2,240
+Noise Paragraphs Removed : 8
 
-Processing Time (sec)    : 3.29
+Processing Time (sec)    : 1.25
 
 ============================================================

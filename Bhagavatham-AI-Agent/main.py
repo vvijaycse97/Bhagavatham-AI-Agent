@@ -1,47 +1,38 @@
-"""
-Bhagavatham AI Agent
-
-Main entry point for the application.
-
-Current Stage:
-    Stage 1 - Corpus Preparation
-
-Future Stages:
-    Stage 2 - Chunking
-    Stage 3 - Embeddings
-    Stage 4 - Vector Database
-    Stage 5 - Retrieval
-    Stage 6 - RAG Question Answering
-"""
-
 from datetime import datetime
-from pathlib import Path
 
 from rag.corpus_builder import CorpusBuilder
+from rag.chunk_pipeline import ChunkPipeline
+
 from utils.logger import get_logger
-from config.settings import (
-    PROCESSED_DATA_DIR,
-    REPORTS_DIR,
-)
 
 logger = get_logger(__name__)
 
 
 def print_banner():
-    """Print application banner."""
 
     print("=" * 70)
-    print("            Bhagavatham AI Agent")
-    print("          Stage 1 - Corpus Builder")
+    print("               Bhagavatham AI Agent")
+    print("        Stage 1 & Stage 2 Pipeline")
     print("=" * 70)
 
 
-def print_summary(stats):
-    """Print pipeline execution summary."""
+def print_stage(title: str):
 
-    print("\n" + "=" * 70)
-    print("Pipeline Execution Summary")
+    print()
     print("=" * 70)
+    print(title)
+    print("=" * 70)
+
+
+def print_corpus_summary(stats):
+
+    reduction = 0.0
+
+    if stats.original_characters > 0:
+        reduction = (
+            stats.removed_characters
+            / stats.original_characters
+        ) * 100
 
     print(f"Documents Processed      : {stats.documents_processed}")
     print(f"Original Characters      : {stats.original_characters:,}")
@@ -49,54 +40,64 @@ def print_summary(stats):
     print(f"Removed Characters       : {stats.removed_characters:,}")
     print(f"Noise Paragraphs Removed : {stats.removed_noise_paragraphs}")
     print(f"Processing Time          : {stats.processing_time_seconds:.2f} sec")
+    print(f"Reduction Percentage     : {reduction:.2f}%")
 
-    if stats.original_characters > 0:
-        reduction = (
-            stats.removed_characters / stats.original_characters
-        ) * 100
 
-        print(f"Reduction Percentage     : {reduction:.2f}%")
 
-    print("\nOutput Directories")
-    print("-" * 70)
-    print(f"Processed Data : {PROCESSED_DATA_DIR}")
-    print(f"Reports        : {REPORTS_DIR}")
+def print_chunk_summary(stats):
 
-    print("=" * 70)
-    print("Stage 1 completed successfully.")
-    print("=" * 70)
-    
+    print(f"Documents Processed : {stats.documents_processed}")
+    print(f"Chunks Created      : {stats.chunks_created}")
+    print(f"Total Characters    : {stats.total_characters:,}")
+    print(f"Processing Time     : {stats.processing_time_seconds:.2f} sec")
+
+
 def main():
-    """Application entry point."""
 
     start_time = datetime.now()
 
-    print_banner()
-
     logger.info("Starting Bhagavatham AI Agent...")
 
-    try:
+    print_banner()
 
-        builder = CorpusBuilder()
+    #
+    # Stage 1
+    #
 
-        statistics = builder.build()
+    corpus_builder = CorpusBuilder()
 
-        end_time = datetime.now()
+    corpus_stats = corpus_builder.run()
 
-        duration = end_time - start_time
+    print_stage("Stage 1 Summary")
 
-        print_summary(statistics)
+    print_corpus_summary(corpus_stats)
 
-        print(f"\nExecution Time : {duration}")
+    #
+    # Stage 2
+    #
 
-        logger.info("Application completed successfully.")
+    chunk_pipeline = ChunkPipeline()
 
-    except Exception as ex:
+    chunk_stats = chunk_pipeline.run(
+        corpus_builder.cleaned_documents
+    )
 
-        logger.exception("Application failed.")
+    print_stage("Stage 2 Summary")
 
-        print("\nApplication terminated due to an unexpected error.")
-        print(ex)
+    print_chunk_summary(chunk_stats)
+
+    #
+    # Final Summary
+    #
+
+    print()
+    print("=" * 70)
+    print("Pipeline Completed Successfully")
+    print("=" * 70)
+
+    print(f"Execution Time : {datetime.now() - start_time}")
+
+    logger.info("Application completed successfully.")
 
 
 if __name__ == "__main__":

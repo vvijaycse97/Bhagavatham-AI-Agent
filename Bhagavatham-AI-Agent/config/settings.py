@@ -131,3 +131,13 @@ CORPUS_REPORT_TXT = REPORTS_DIR / "corpus_report.txt"
 
 CORPUS_REPORT_JSON = REPORTS_DIR / "corpus_report.json"
 EXPECTED_SOURCE_DOCUMENTS = 2
+# ======================================================
+# Chunking Configuration
+# ======================================================
+
+CHUNK_SIZE = 800
+
+CHUNK_OVERLAP = 150
+
+MIN_CHUNK_SIZE = 200
+CHUNKS_DIR = DATA_DIR / "chunks"

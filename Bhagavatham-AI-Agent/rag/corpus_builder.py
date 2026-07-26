@@ -72,6 +72,9 @@ class CorpusBuilder:
         self.report_writer = ReportWriter()
 
         self.statistics = CorpusStatistics()
+
+        self.cleaned_documents = []
+
     def build(self) -> CorpusStatistics:
         """
         Execute the corpus build pipeline.
@@ -97,6 +100,10 @@ class CorpusBuilder:
         for document in documents:
 
             clean_document = self.cleaner.clean(document)
+
+            self.cleaned_documents.append(
+              clean_document
+             )
 
             self._process_document(
             clean_document
@@ -139,7 +146,7 @@ class CorpusBuilder:
             "Saving cleaned document: %s",
             output_file.name,
         )
-
+        
         output_file.write_text(
             clean_document.cleaned_text,
             encoding=DEFAULT_ENCODING,
