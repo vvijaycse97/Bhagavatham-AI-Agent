@@ -40,27 +40,27 @@ class ChunkPipeline:
 
         for clean_document in documents:
 
-          logger.info(
-            "Chunking %s",
+            logger.info(
+                "Chunking %s",
+               clean_document.document.file_name,
+            )
+
+            chunks = self.chunker.create_chunks(
+                text=clean_document.cleaned_text,
+                source_document=clean_document.document.file_name,
+            )
+
+            self.writer.write(
             clean_document.document.file_name,
-        )
+            chunks,
+            )
 
-        chunks = self.chunker.create_chunks(
-        text=clean_document.cleaned_text,
-        source_document=clean_document.document.file_name,
-        )
+            statistics.documents_processed += 1
 
-        self.writer.write(
-        clean_document.document.file_name,
-        chunks,
-        )
+            statistics.chunks_created += len(chunks)
 
-        statistics.documents_processed += 1
-
-        statistics.chunks_created += len(chunks)
-
-        statistics.total_characters += len(
-        clean_document.cleaned_text
+            statistics.total_characters += len(
+            clean_document.cleaned_text
         )
 
         statistics.processing_time_seconds = (

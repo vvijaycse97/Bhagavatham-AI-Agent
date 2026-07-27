@@ -66,7 +66,7 @@ def main():
 
     corpus_builder = CorpusBuilder()
 
-    corpus_stats = corpus_builder.run()
+    corpus_stats = corpus_builder.build()
 
     print_stage("Stage 1 Summary")
 

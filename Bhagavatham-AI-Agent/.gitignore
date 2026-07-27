@@ -1,8 +1,12 @@
+# Python
 .venv/
 __pycache__/
-*.pyc
+*.py[cod]
 
+# Future vector database
 vector_db/
+
+#Logs
 logs/
 
 .streamlit/secrets.toml
@@ -14,3 +18,7 @@ logs/
 *.db
 
 *.sqlite3
+# Generated reports
+reports/
+# Generated chunks
+data/chunks/

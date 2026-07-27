@@ -1,16 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import List
 
 
 class EmbeddingProvider(ABC):
     """Abstract contract for all embedding providers."""
 
     @abstractmethod
-    def embed(self, texts: List[str]) -> List[List[float]]:
-        """Generate embeddings for a list of texts."""
-        pass
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Generate embeddings for input texts."""
+        raise NotImplementedError
 
-    @abstractmethod
-    def embedding_dimension(self) -> int:
-        """Return the embedding vector dimension."""
-        pass
+   
