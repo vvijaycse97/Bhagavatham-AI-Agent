@@ -2,7 +2,10 @@ from datetime import datetime
 
 from rag.corpus_builder import CorpusBuilder
 from rag.chunk_pipeline import ChunkPipeline
-
+from rag.embedding_pipeline import EmbeddingPipeline
+from rag.embedding_generator import EmbeddingGenerator
+from rag.sentence_transformer_provider import SentenceTransformerProvider
+from config.settings import EMBEDDING_MODEL
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -12,7 +15,7 @@ def print_banner():
 
     print("=" * 70)
     print("               Bhagavatham AI Agent")
-    print("        Stage 1 & Stage 2 Pipeline")
+    print("     Stage 1, Stage 2 & Stage 3 Pipeline")
     print("=" * 70)
 
 
@@ -51,6 +54,13 @@ def print_chunk_summary(stats):
     print(f"Total Characters    : {stats.total_characters:,}")
     print(f"Processing Time     : {stats.processing_time_seconds:.2f} sec")
 
+def print_embedding_summary(stats):
+
+    print(f"Documents Processed : {stats.documents_processed}")
+    print(f"Chunks Embedded     : {stats.chunks_embedded}")
+    print(f"Embedding Dimension : {stats.embedding_dimension}")
+    print(f"Processing Time     : {stats.processing_time_seconds:.2f} sec")
+
 
 def main():
 
@@ -85,6 +95,32 @@ def main():
     print_stage("Stage 2 Summary")
 
     print_chunk_summary(chunk_stats)
+
+   #
+   # Stage 3
+   #
+
+    embedding_provider = SentenceTransformerProvider(
+      model_name=EMBEDDING_MODEL
+    )
+
+    embedding_generator = EmbeddingGenerator(
+    embedding_provider
+    )
+
+    embedding_pipeline = EmbeddingPipeline(
+    embedding_generator
+    )
+
+    embedding_stats = embedding_pipeline.run(
+    chunk_pipeline.chunks
+    )
+
+    print_stage("Stage 3 Summary")
+
+    print_embedding_summary(
+    embedding_stats
+    )
 
     #
     # Final Summary

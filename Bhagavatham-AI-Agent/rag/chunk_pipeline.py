@@ -21,6 +21,7 @@ class ChunkPipeline:
         self.chunker = Chunker()
 
         self.writer = ChunkWriter()
+        self.chunks = []
 
     def run(
         self,
@@ -49,7 +50,7 @@ class ChunkPipeline:
                 text=clean_document.cleaned_text,
                 source_document=clean_document.document.file_name,
             )
-
+            self.chunks.extend(chunks)
             self.writer.write(
             clean_document.document.file_name,
             chunks,

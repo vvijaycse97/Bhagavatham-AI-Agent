@@ -1,5 +1,7 @@
 embedding:
   provider: sentence_transformers
+  output_directory: data/embeddings
+  batch_size: 32
 
   model:
     name: all-MiniLM-L6-v2

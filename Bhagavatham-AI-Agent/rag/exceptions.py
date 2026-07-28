@@ -12,3 +12,6 @@ class EmbeddingGenerationException(EmbeddingException):
 
 class InvalidEmbeddingConfiguration(EmbeddingException):
     """Raised when embedding configuration is invalid."""
+
+class EmbeddingValidationException(EmbeddingException):
+    """Raised when embedding validation fails."""

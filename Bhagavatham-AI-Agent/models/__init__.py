@@ -16,6 +16,8 @@ from .chunk import Chunk
 from .clean_result import CleanResult
 from .clean_document import CleanDocument
 from .corpus_statistics import CorpusStatistics
+from .embedding_record import EmbeddingRecord
+from .embedding_statistics import EmbeddingStatistics
 
 __all__ = [
     "Document",
@@ -23,5 +25,7 @@ __all__ = [
     "Chunk",
     "CleanResult",
     "CleanDocument",
-    "CorpusStatistics"
+    "CorpusStatistics",
+    "EmbeddingRecord",
+    "EmbeddingStatistics",
 ]

@@ -47,7 +47,7 @@ class TestConfig(unittest.TestCase):
 
     def test_embedding_model(self):
         self.assertTrue(
-            EMBEDDING_MODEL.startswith("BAAI/")
+        EMBEDDING_MODEL.startswith("BAAI/")
         )
 
     def test_log_level(self):

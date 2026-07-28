@@ -27,7 +27,7 @@ class SentenceTransformerProvider(EmbeddingProvider):
     The model is loaded lazily on the first embedding request.
     """
 
-    DEFAULT_BATCH_SIZE = 32
+    DEFAULT_BATCH_SIZE = 64
     DEFAULT_NORMALIZE_EMBEDDINGS = True
 
     def __init__(
@@ -122,18 +122,20 @@ class SentenceTransformerProvider(EmbeddingProvider):
                 "Embedding model is not initialized."
             )
 
+        logger.info("Embedding %d text(s).", len(texts))
+        logger.info("Batch size: %d", self._batch_size)
+        logger.info("Normalize embeddings: %s", self._normalize_embeddings)
         logger.info(
             "Generating embeddings for %d text(s)...",
             len(texts),
         )
-
         try:
             embeddings = self._model.encode(
                 texts,
                 batch_size=self._batch_size,
                 convert_to_numpy=True,
                 normalize_embeddings=self._normalize_embeddings,
-                show_progress_bar=False,
+                show_progress_bar=True,
             )
 
             logger.info(
@@ -149,3 +151,22 @@ class SentenceTransformerProvider(EmbeddingProvider):
             raise EmbeddingGenerationException(
                 "Failed to generate embeddings."
             ) from exc
+
+    def embedding_dimension(self) -> int:
+        """
+        Return the embedding vector dimension.
+
+        Returns
+        -------
+        int
+            Dimension of generated embeddings.
+        """
+
+        self._load_model()
+
+        if self._model is None:
+            raise ModelLoadException(
+                "Embedding model is not initialized."
+            )
+
+        return self._model.get_sentence_embedding_dimension()

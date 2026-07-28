@@ -1,12 +1,8 @@
 import unittest
 
-from models.document import Document
 from models.chunk_statistics import ChunkStatistics
 from rag.chunk_pipeline import ChunkPipeline
 from rag.corpus_builder import CorpusBuilder
-from config.settings import CHUNKS_DIR
-
-from rag.chunk_pipeline import ChunkPipeline
 
 class TestChunkPipeline(unittest.TestCase):
     """
@@ -35,12 +31,12 @@ class TestChunkPipeline(unittest.TestCase):
         )
 
     def test_documents_processed(self):
-        """Should process one document."""
+        """Should process all cleaned documents."""
 
         self.assertEqual(
-            self.statistics.documents_processed,
-            1,
-        )
+        self.statistics.documents_processed,
+        len(self.builder.cleaned_documents),
+    )
 
     def test_chunks_created(self):
         """Should create at least one chunk."""

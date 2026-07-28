@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import unittest
 from unittest.mock import MagicMock, patch
+from config.settings import EMBEDDING_MODEL
 
 import numpy as np
 
@@ -24,7 +25,7 @@ class TestSentenceTransformerProvider(unittest.TestCase):
     def setUp(self) -> None:
         """Create a provider instance for each test."""
         self.provider = SentenceTransformerProvider(
-            model_name="all-MiniLM-L6-v2",
+            model_name=EMBEDDING_MODEL,
             batch_size=2,
             normalize_embeddings=True,
         )
@@ -33,7 +34,7 @@ class TestSentenceTransformerProvider(unittest.TestCase):
         """Provider should initialize with supplied configuration."""
         self.assertEqual(
             self.provider._model_name,
-            "all-MiniLM-L6-v2",
+            EMBEDDING_MODEL,
         )
         self.assertEqual(self.provider._batch_size, 2)
         self.assertTrue(self.provider._normalize_embeddings)
@@ -60,6 +61,16 @@ class TestSentenceTransformerProvider(unittest.TestCase):
         self.provider.embed(["Radha"])
 
         mock_sentence_transformer.assert_called_once()
+
+    def test_provider_uses_configured_model(self):
+        """
+        Provider should use the configured embedding model.
+        """
+
+        self.assertEqual(
+        self.provider._model_name,
+        EMBEDDING_MODEL,
+    )
 
     @patch("rag.sentence_transformer_provider.SentenceTransformer")
     def test_embed_returns_embeddings(

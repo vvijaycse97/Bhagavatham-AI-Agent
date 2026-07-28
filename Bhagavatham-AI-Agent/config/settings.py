@@ -141,3 +141,9 @@ CHUNK_OVERLAP = 150
 
 MIN_CHUNK_SIZE = 200
 CHUNKS_DIR = DATA_DIR / "chunks"
+# ======================================================
+# Embedding Output
+# ======================================================
+
+EMBEDDINGS_DIR = DATA_DIR / "embeddings"
+EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
