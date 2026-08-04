@@ -5,8 +5,14 @@ from rag.chunk_pipeline import ChunkPipeline
 from rag.embedding_pipeline import EmbeddingPipeline
 from rag.embedding_generator import EmbeddingGenerator
 from rag.sentence_transformer_provider import SentenceTransformerProvider
-from config.settings import EMBEDDING_MODEL
 from utils.logger import get_logger
+from rag.chroma_vector_store import ChromaVectorStore
+from rag.indexer import Indexer
+from config.settings import (
+    EMBEDDING_MODEL,
+    VECTOR_DB_PATH,
+    VECTOR_COLLECTION_NAME,
+)
 
 logger = get_logger(__name__)
 
@@ -15,7 +21,7 @@ def print_banner():
 
     print("=" * 70)
     print("               Bhagavatham AI Agent")
-    print("     Stage 1, Stage 2 & Stage 3 Pipeline")
+    print("     Stage 1, Stage 2, Stage 3 & Stage 4 Pipeline")
     print("=" * 70)
 
 
@@ -61,6 +67,9 @@ def print_embedding_summary(stats):
     print(f"Embedding Dimension : {stats.embedding_dimension}")
     print(f"Processing Time     : {stats.processing_time_seconds:.2f} sec")
 
+def print_vector_summary(count):
+
+    print(f"Vectors Stored      : {count}")
 
 def main():
 
@@ -96,24 +105,24 @@ def main():
 
     print_chunk_summary(chunk_stats)
 
-   #
-   # Stage 3
-   #
+    #
+    # Stage 3
+    #
 
     embedding_provider = SentenceTransformerProvider(
       model_name=EMBEDDING_MODEL
     )
 
     embedding_generator = EmbeddingGenerator(
-    embedding_provider
+        embedding_provider
     )
 
     embedding_pipeline = EmbeddingPipeline(
-    embedding_generator
+        embedding_generator
     )
 
     embedding_stats = embedding_pipeline.run(
-    chunk_pipeline.chunks
+        chunk_pipeline.chunks
     )
 
     print_stage("Stage 3 Summary")
@@ -122,6 +131,33 @@ def main():
     embedding_stats
     )
 
+        #
+    # Stage 4
+    #
+
+    vector_store = ChromaVectorStore(
+        persist_directory=VECTOR_DB_PATH,
+        collection_name=VECTOR_COLLECTION_NAME,
+    )
+   
+    vector_store.create_collection()
+
+
+    indexer = Indexer(
+        vector_store=vector_store,
+    )
+
+
+    indexed_count = indexer.index(
+        embedding_pipeline.embedding_records
+    )
+
+    print_stage("Stage 4 Summary")
+
+    print_vector_summary(
+        indexed_count
+    )
+    
     #
     # Final Summary
     #

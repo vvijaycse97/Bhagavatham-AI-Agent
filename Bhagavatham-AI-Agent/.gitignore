@@ -20,5 +20,5 @@ logs/
 *.sqlite3
 # Generated reports
 reports/
-# Generated chunks
+# Generated chunkss
 data/chunks/

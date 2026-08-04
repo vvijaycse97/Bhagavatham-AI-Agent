@@ -78,15 +78,6 @@ ARCHIVE_START_MARKERS = [
 # Reserved for future use
 ARCHIVE_END_MARKERS = []
 
-# ==========================================================
-# CHUNKING
-# ==========================================================
-
-CHUNK_SIZE = 1000
-
-CHUNK_OVERLAP = 150
-
-MIN_CHUNK_SIZE = 300
 
 # ==========================================================
 # EMBEDDING MODEL
@@ -98,8 +89,9 @@ EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
 # VECTOR DATABASE
 # ==========================================================
 
-CHROMA_COLLECTION = "bhagavatham"
+VECTOR_DB_PATH = VECTOR_DB_DIR / "chroma"
 
+VECTOR_COLLECTION_NAME = "bhagavatham"
 # ==========================================================
 # LLM
 # ==========================================================
@@ -146,4 +138,3 @@ CHUNKS_DIR = DATA_DIR / "chunks"
 # ======================================================
 
 EMBEDDINGS_DIR = DATA_DIR / "embeddings"
-EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"

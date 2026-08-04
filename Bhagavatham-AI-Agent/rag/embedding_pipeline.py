@@ -9,10 +9,10 @@ Generates embeddings from chunks and writes them to disk.
 from __future__ import annotations
 
 import logging
-import statistics
 import time
 from collections import defaultdict
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 
 from models import (
     Chunk,
@@ -21,6 +21,7 @@ from models import (
 
 from rag.embedding_generator import EmbeddingGenerator
 from rag.embedding_writer import EmbeddingWriter
+from models.embedding_record import EmbeddingRecord
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ class EmbeddingPipeline:
     ) -> None:
 
         self._generator = generator
+        self.embedding_records: list[EmbeddingRecord] = []
 
         self._writer = EmbeddingWriter()
 
@@ -54,6 +56,8 @@ class EmbeddingPipeline:
         start_time = time.perf_counter()
 
         statistics = EmbeddingStatistics()
+
+        self.embedding_records.clear()
 
         if not chunks:
             logger.info("No chunks supplied.")
@@ -74,33 +78,41 @@ class EmbeddingPipeline:
                 chunk.source_document
             ].append(chunk)
 
-        #
+                #
         # Process each document
         #
 
-        for (
-            source_document,
-            document_chunks,
-        ) in grouped_chunks.items():
+        with ThreadPoolExecutor(max_workers=2) as executor:
 
-            logger.info(
-                "Embedding %s",
+            for (
                 source_document,
-            )
+                document_chunks,
+            ) in grouped_chunks.items():
 
-            records = self._generator.generate(
-                document_chunks
-            )
+                logger.info(
+                    "Embedding %s",
+                    source_document,
+                )
 
-            self._writer.write(
-                source_document,
-                records,
-            )
+                records = self._generator.generate(
+                    document_chunks
+                )
 
-            statistics.documents_processed += 1
+                self.embedding_records.extend(
+                    records
+                )
 
-            statistics.chunks_embedded += len(records)
+                executor.submit(
+                    self._writer.write,
+                    source_document,
+                    records,
+                )
 
+                statistics.documents_processed += 1
+
+                statistics.chunks_embedded += len(
+                    records
+                )
         #
         # Embedding dimension
         #
