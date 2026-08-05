@@ -8,6 +8,7 @@ using the sentence-transformers library.
 from __future__ import annotations
 
 import logging
+import time
 
 from sentence_transformers import SentenceTransformer
 
@@ -129,6 +130,7 @@ class SentenceTransformerProvider(EmbeddingProvider):
             "Generating embeddings for %d text(s)...",
             len(texts),
         )
+        encode_start = time.perf_counter()
         try:
             embeddings = self._model.encode(
                 texts,
@@ -136,6 +138,11 @@ class SentenceTransformerProvider(EmbeddingProvider):
                 convert_to_numpy=True,
                 normalize_embeddings=self._normalize_embeddings,
                 show_progress_bar=True,
+            )
+
+            logger.info(
+                "Encode completed in %.2f sec",
+                time.perf_counter() - encode_start,
             )
 
             logger.info(
@@ -169,4 +176,4 @@ class SentenceTransformerProvider(EmbeddingProvider):
                 "Embedding model is not initialized."
             )
 
-        return self._model.get_sentence_embedding_dimension()
+        return self._model.get_embedding_dimension()

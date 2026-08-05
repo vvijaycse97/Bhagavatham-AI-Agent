@@ -19,6 +19,13 @@ logs/
 
 *.sqlite3
 # Generated reports
-reports/
+reports/*.json
+reports/*.txt
+
+# Keep documentation
+!reports/*.md
 # Generated chunkss
 data/chunks/
+data/processed/
+# Generated embeddings
+data/embeddings/

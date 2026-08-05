@@ -13,6 +13,7 @@ from config.settings import (
     VECTOR_DB_PATH,
     VECTOR_COLLECTION_NAME,
 )
+from utils.performance_profiler import PerformanceProfiler
 
 logger = get_logger(__name__)
 
@@ -72,7 +73,7 @@ def print_vector_summary(count):
     print(f"Vectors Stored      : {count}")
 
 def main():
-
+    profiler = PerformanceProfiler()
     start_time = datetime.now()
 
     logger.info("Starting Bhagavatham AI Agent...")
@@ -82,11 +83,11 @@ def main():
     #
     # Stage 1
     #
-
+    profiler.start("Corpus")
     corpus_builder = CorpusBuilder()
 
     corpus_stats = corpus_builder.build()
-
+    profiler.stop("Corpus")
     print_stage("Stage 1 Summary")
 
     print_corpus_summary(corpus_stats)
@@ -94,13 +95,18 @@ def main():
     #
     # Stage 2
     #
-
+    profiler.start("Chunking")
     chunk_pipeline = ChunkPipeline()
 
     chunk_stats = chunk_pipeline.run(
         corpus_builder.cleaned_documents
     )
-
+    profiler.stop("Chunking")
+    profiler.set_item_count(
+    "Chunking",
+    chunk_stats.chunks_created,
+    )
+    
     print_stage("Stage 2 Summary")
 
     print_chunk_summary(chunk_stats)
@@ -108,7 +114,7 @@ def main():
     #
     # Stage 3
     #
-
+    profiler.start("Embedding")
     embedding_provider = SentenceTransformerProvider(
       model_name=EMBEDDING_MODEL
     )
@@ -124,17 +130,22 @@ def main():
     embedding_stats = embedding_pipeline.run(
         chunk_pipeline.chunks
     )
-
+    profiler.stop("Embedding")
+    profiler.set_item_count(
+    "Embedding",
+    embedding_stats.chunks_embedded,
+    )
+    
     print_stage("Stage 3 Summary")
 
     print_embedding_summary(
     embedding_stats
     )
 
-        #
+    #
     # Stage 4
     #
-
+    profiler.start("Vector DB")
     vector_store = ChromaVectorStore(
         persist_directory=VECTOR_DB_PATH,
         collection_name=VECTOR_COLLECTION_NAME,
@@ -151,7 +162,12 @@ def main():
     indexed_count = indexer.index(
         embedding_pipeline.embedding_records
     )
-
+    profiler.stop("Vector DB")
+    profiler.set_item_count(
+    "Vector DB",
+    indexed_count,
+    )
+    
     print_stage("Stage 4 Summary")
 
     print_vector_summary(
@@ -170,6 +186,9 @@ def main():
     print(f"Execution Time : {datetime.now() - start_time}")
 
     logger.info("Application completed successfully.")
+    summary = profiler.summary()
+    print(summary)
+    logger.debug("\n%s", summary)
 
 
 if __name__ == "__main__":
