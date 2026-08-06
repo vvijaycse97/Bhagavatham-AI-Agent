@@ -8,6 +8,9 @@ from rag.sentence_transformer_provider import SentenceTransformerProvider
 from utils.logger import get_logger
 from rag.chroma_vector_store import ChromaVectorStore
 from rag.indexer import Indexer
+from rag.query_embedding import QueryEmbedding
+from rag.retriever import Retriever
+from rag.retrieval_pipeline import RetrievalPipeline
 from config.settings import (
     EMBEDDING_MODEL,
     VECTOR_DB_PATH,
@@ -22,7 +25,7 @@ def print_banner():
 
     print("=" * 70)
     print("               Bhagavatham AI Agent")
-    print("     Stage 1, Stage 2, Stage 3 & Stage 4 Pipeline")
+    print("     Stage 1, Stage 2, Stage 3 , Stage 4  & Stage 5 Pipeline")
     print("=" * 70)
 
 
@@ -172,6 +175,49 @@ def main():
 
     print_vector_summary(
         indexed_count
+    )
+    #
+    # Stage 5
+    #
+    profiler.start("Retrieval Engine")
+
+    print("\n" + "=" * 60)
+    print("STAGE 5 : RETRIEVAL ENGINE")
+    print("=" * 60)
+
+
+    query_embedding = QueryEmbedding(
+        embedding_provider=embedding_provider,
+    )
+
+    retriever = Retriever(
+        query_embedding=query_embedding,
+        vector_store=vector_store,
+    )
+
+    retrieval_pipeline = RetrievalPipeline(
+        retriever=retriever,
+    )
+    query = "Who is Prahlada?"
+    results = retrieval_pipeline.retrieve(
+        query=query,
+        top_k=5,
+    )
+    print(f"\nQuery: {query}")
+    print(f"Retrieved {len(results)} result(s)\n")
+
+    for index, result in enumerate(results, start=1):
+        print("-" * 60)
+        print(f"Result {index}")
+        print(f"ID       : {result.id}")
+        print(f"Score    : {result.score:.4f}")
+        print(f"Metadata : {result.metadata}")
+        print(f"Text     :\n{result.text}\n")    
+
+    profiler.stop("Retrieval Engine")
+    profiler.set_item_count(
+        "Retrieval Engine",
+        len(results),
     )
     
     #

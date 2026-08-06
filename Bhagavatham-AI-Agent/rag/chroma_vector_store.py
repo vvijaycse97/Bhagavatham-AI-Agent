@@ -46,9 +46,7 @@ class ChromaVectorStore(VectorStore):
          "Collection name: %s",
           self._collection_name,
         )
-        print("Persist directory:", self._persist_directory.resolve())
-        print("Collection:", self._collection_name)
-
+        
         self._collection: Collection | None = None
 
     def create_collection(self, collection_name: str | None = None) -> None:
@@ -99,12 +97,73 @@ class ChromaVectorStore(VectorStore):
         top_k: int = 5,
     ) -> list[dict[str, Any]]:
         """
-        Will be implemented in v0.5.0.
+        Search the vector store for the most similar documents.
+
+        Args:
+            query_embedding:
+                Query embedding vector.
+
+        top_k:
+            Maximum number of results to return.
+
+        Returns:
+            List of matching documents ordered by similarity.
         """
 
-        raise NotImplementedError(
-            "Similarity search will be implemented in v0.5.0."
+        if self._collection is None:
+            raise RuntimeError(
+                "Collection has not been created." 
+                " Call create_collection() first."
+            )
+
+        logger.info(
+            "Performing similarity search (top_k=%d)",
+            top_k,
         )
+
+        response = self._collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_k,
+            include=[
+                "documents",
+                "metadatas",
+                "distances",
+            ],
+        )
+
+        ids = response.get("ids") or [[]]
+        documents = response.get("documents") or [[]]
+        metadatas = response.get("metadatas") or [[]]
+        distances = response.get("distances") or [[]]
+
+        ids = ids[0]
+        documents = documents[0]
+        metadatas = metadatas[0]
+        distances = distances[0]
+
+        results: list[dict[str, Any]] = []
+
+        for id_, document, metadata, distance in zip(
+            ids,
+            documents,
+            metadatas,
+            distances,
+        ):
+            results.append(
+                {
+                    "id": id_,
+                    "document": document,
+                    "metadata": metadata or {},
+                    "score": float(distance),
+                }
+            )
+
+        logger.info(
+            "Retrieved %d result(s).",
+            len(results),
+        )
+
+        return results
 
     def count(self) -> int:
         """
