@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 import unittest
+from unittest.mock import MagicMock
 import uuid
 
 from rag.chroma_vector_store import ChromaVectorStore
@@ -111,15 +112,61 @@ class TestChromaVectorStore(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             self.store.count()
+    
 
-    def test_similarity_search_not_implemented(self):
-        with self.assertRaises(
-            NotImplementedError
-        ):
+    def test_similarity_search_returns_results(self):
+        """Similarity search should return mapped search results."""
+
+        self.store._collection = MagicMock()
+
+        self.store._collection.query.return_value = {
+            "ids": [["chunk1"]],
+            "documents": [["Sri Krishna is the Supreme Personality"]],
+            "metadatas": [[{"chapter": 1}]],
+            "distances": [[0.18]],
+        }
+
+        results = self.store.similarity_search(
+            [0.1] * 768,
+            top_k=5,
+        )
+
+        self.assertEqual(1, len(results))
+
+        self.assertEqual("chunk1", results[0]["id"])
+        self.assertEqual(
+            "Sri Krishna is the Supreme Personality",
+            results[0]["document"],
+        )
+        self.assertEqual(
+            {"chapter": 1},
+            results[0]["metadata"],
+        )
+        self.assertAlmostEqual(
+            0.18,
+            results[0]["score"],
+            places=6,
+        )
+
+        self.store._collection.query.assert_called_once_with(
+            query_embeddings=[[0.1] * 768],
+            n_results=5,
+            include=[
+                "documents",
+                "metadatas",
+                "distances",
+            ],
+        )
+
+    def test_similarity_search_without_collection_raises_runtime_error(self):
+        """Searching before creating a collection should fail."""
+
+        self.store._collection = None
+
+        with self.assertRaises(RuntimeError):
             self.store.similarity_search(
                 [0.1] * 768
             )
-
 
 if __name__ == "__main__":
     unittest.main()
