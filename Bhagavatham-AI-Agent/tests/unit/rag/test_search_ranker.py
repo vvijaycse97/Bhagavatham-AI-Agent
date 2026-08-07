@@ -77,11 +77,11 @@ class TestSearchRanker(unittest.TestCase):
             chunk_id="1",
             text="Bhagavatham",
             distance=0.50,
-        )
+    )   
 
         ranked = self.ranker.rank([result])
 
-        expected = 1.0 / (1.0 + 0.50)
+        expected = 0.75
 
         self.assertAlmostEqual(
             expected,
@@ -174,16 +174,40 @@ class TestSearchRanker(unittest.TestCase):
             places=6,
         )
 
-    def test_calculate_similarity_large_distance(self):
-        """Large distances should produce lower similarity."""
+
+    def test_calculate_similarity_known_distances(self):
+        """Known squared L2 distances should map to cosine similarity."""
+
+        test_cases = [
+            (0.5, 0.75),
+            (1.0, 0.5),
+            (2.0, 0.0),
+        ]
+
+        for distance, expected_similarity in test_cases:
+
+            similarity = self.ranker.calculate_similarity(
+                distance
+            )
+
+            self.assertAlmostEqual(
+                expected_similarity,
+                similarity,
+                places=6,
+            )
+
+
+    def test_calculate_similarity_large_distance_is_clamped(self):
+        """Distances greater than 2 should be clamped to zero."""
 
         similarity = self.ranker.calculate_similarity(10.0)
 
-        self.assertAlmostEqual(
-            1.0 / 11.0,
+        self.assertEqual(
+            0.0,
             similarity,
-            places=6,
         )
+
+
 
     def test_rank_returns_new_objects(self):
         """Ranking should create new SearchResult instances."""
@@ -211,3 +235,6 @@ class TestSearchRanker(unittest.TestCase):
 
         with self.assertRaises(FrozenInstanceError):
             ranked[0].rank = 5
+
+
+

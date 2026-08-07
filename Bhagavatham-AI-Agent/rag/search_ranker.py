@@ -11,6 +11,7 @@ Project: Bhagavatham AI Agent
 """
 
 from __future__ import annotations
+from turtle import distance
 
 from models.search_result import SearchResult
 
@@ -34,27 +35,37 @@ class SearchRanker:
     @staticmethod
     def calculate_similarity(distance: float) -> float:
         """
-        Converts vector distance into a normalized similarity score.
+        Converts ChromaDB squared L2 distance into cosine similarity.
 
-        Formula:
-            similarity = 1 / (1 + distance)
+        The project uses normalized embeddings. For normalized vectors:
+
+        cosine_similarity = 1 - (squared_l2_distance / 2)
 
         Properties:
             distance = 0.0  -> similarity = 1.0
+            distance = 0.5  -> similarity = 0.75
             distance = 1.0  -> similarity = 0.5
-            distance = 2.0  -> similarity = 0.333...
+            distance = 2.0  -> similarity = 0.0
 
         Args:
             distance:
-                Distance returned by the vector database.
+                Squared L2 distance returned by ChromaDB.
 
         Returns:
             Similarity score between 0 and 1.
         """
-        if distance < 0:
-            raise ValueError("Distance cannot be negative.")
 
-        return 1.0 / (1.0 + distance)
+        if distance < 0:
+            raise ValueError(
+                "Distance cannot be negative."
+            )
+
+        similarity = 1.0 - (distance / 2.0)
+
+        return max(
+            0.0,
+            min(1.0, similarity)
+        )
 
     def rank(
         self,

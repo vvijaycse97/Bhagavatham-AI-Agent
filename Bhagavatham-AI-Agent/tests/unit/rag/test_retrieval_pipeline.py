@@ -156,7 +156,7 @@ class TestRetrievalPipeline(unittest.TestCase):
         result = results[0]
 
         expected_similarity = (
-            1.0 / (1.0 + 0.10)
+            1.0 - (0.10 / 2.0)
         )
 
         self.assertAlmostEqual(
@@ -209,7 +209,7 @@ class TestRetrievalPipeline(unittest.TestCase):
 
         results = self.pipeline.retrieve(
             "Prahlada",
-            similarity_threshold=0.90,
+            similarity_threshold=0.91,
         )
 
         self.assertEqual(
